@@ -102,8 +102,9 @@ async def set_muted_role(ctx, role):
         }
     ]
 )
-@commands.cooldown(1, 60, commands.BucketType.user)  # 1 use per 60 seconds per user
-@commands.has_permissions(manage_messages=True)
+
+@commands.cooldown(1, 60, commands.BucketType.user)
+@commands.has_permissions(timeout_members=True)
 async def mute(ctx, user, reason=None, time=None):
     muted_role = discord.utils.get(ctx.guild.roles, name="Muted")
     if muted_role:
@@ -119,5 +120,33 @@ async def mute(ctx, user, reason=None, time=None):
 async def mute_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f'This command is on cooldown. Try again in {int(error.retry_after)} seconds.')
+
+# Prune (Bulk Delete) Command
+@slash.slash(
+    name='prune',
+    description='Prune a specific number of messages',
+    options=[
+        {
+            'name': 'number',
+            'description': 'Number of messages to prune',
+            'type': 4,  # Integer type
+            'required': True
+        },
+        {
+            'name': 'reason',
+            'description': 'Reason for pruning (optional)',
+            'type': 3,  # String type
+            'required': False
+        }
+    ]
+)
+@commands.has_permissions(manage_messages=True)
+async def prune(ctx, number, reason=None):
+    await ctx.message.delete()
+    deleted = await ctx.channel.purge(limit=number + 1)
+    if reason:
+        await ctx.send(f'Successfully pruned {len(deleted) - 1} messages for reason: {reason}')
+    else:
+        await ctx.send(f'Successfully pruned {len(deleted) - 1} messages.')
 
 bot.run(bot_token)
