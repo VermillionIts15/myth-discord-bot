@@ -1,3 +1,1 @@
-# To do:
-
-- Add simple features: Ban, Kick, Mute, Exile/Blacklist.
+Working on this please wait
