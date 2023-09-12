@@ -1,70 +1,64 @@
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
+import asyncio
 
-# I shouldn't have to say this but this is needed.
-# Put your bot token here, otherwise your bot won't work.
-bot_token = "TOKEN HERE"
+bot_token = "YOUR_BOT_TOKEN_HERE"
 
 bot = commands.Bot(command_prefix='/', intents=discord.Intents.all())
 slash = SlashCommand(bot, sync_commands=True)
 
-# Bot event: When the bot is ready
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
 # Ban Command
 @slash.slash(
-   name='ban',
-   description='Ban a user',
-   options=[
-       {
-           'name': 'user',
-           'description': 'User to ban',
-           'type': 6,  # User type
-           'required': True
-       },
-       {
-           'name': 'reason',
-           'description': 'Reason for banning',
-           'type': 3,  # String type
-           'required': False
-       }
-   ]
+    name='ban',
+    description='Ban a user',
+    options=[
+        {
+            'name': 'user',
+            'description': 'User to ban',
+            'type': 6,  # User type
+            'required': True
+        },
+        {
+            'name': 'reason',
+            'description': 'Reason for banning',
+            'type': 3,  # String type
+            'required': False
+        }
+    ]
 )
+@commands.has_permissions(ban_members=True)
 async def ban(ctx, user, reason=None):
-   if ctx.author.guild_permissions.ban_members:
-       await user.ban(reason=reason)
-       await ctx.send(f'Banned user {user.display_name} for reason: {reason}')
-   else:
-       await ctx.send('You do not have permission to ban users.')
+    await user.ban(reason=reason)
+    await ctx.send(f'Banned user {user.display_name} for reason: {reason}')
 
 # Kick Command
 @slash.slash(
-   name='kick',
-   description='Kick a user',
-   options=[
-       {
-           'name': 'user',
-           'description': 'User to kick',
-           'type': 6,  # User type
-           'required': True
-       },
-       {
-           'name': 'reason',
-           'description': 'Reason for kicking',
-           'type': 3,  # String type
-           'required': False
-       }
-   ]
+    name='kick',
+    description='Kick a user',
+    options=[
+        {
+            'name': 'user',
+            'description': 'User to kick',
+            'type': 6,  # User type
+            'required': True
+        },
+        {
+            'name': 'reason',
+            'description': 'Reason for kicking',
+            'type': 3,  # String type
+            'required': False
+        }
+    ]
 )
+@commands.has_permissions(kick_members=True)
 async def kick(ctx, user, reason=None):
-   if ctx.author.guild_permissions.kick_members:
-       await user.kick(reason=reason)
-       await ctx.send(f'Kicked user {user.display_name} for reason: {reason}')
-   else:
-       await ctx.send('You do not have permission to kick users.')
+    await user.kick(reason=reason)
+    await ctx.send(f'Kicked user {user.display_name} for reason: {reason}')
 
 # Set Muted Role Command
 @slash.slash(
@@ -79,18 +73,9 @@ async def kick(ctx, user, reason=None):
         }
     ]
 )
-
+@commands.has_permissions(manage_roles=True)
 async def set_muted_role(ctx, role):
-    if ctx.author.guild_permissions.manage_roles:
-        muted_role = discord.utils.get(ctx.guild.roles, id=role.id)
-
-        if muted_role:
-            await ctx.send(f'Successfully set the Muted role to {muted_role.mention}.')
-        else:
-            await ctx.send('The specified role does not exist. Please create the Muted role first.')
-
-    else:
-        await ctx.send('You do not have permission to set the Muted role.')
+    await ctx.send(f'Successfully set the Muted role to {role.mention}.')
 
 # Mute Command
 @slash.slash(
@@ -117,18 +102,22 @@ async def set_muted_role(ctx, role):
         }
     ]
 )
+@commands.cooldown(1, 60, commands.BucketType.user)  # 1 use per 60 seconds per user
+@commands.has_permissions(manage_messages=True)
 async def mute(ctx, user, reason=None, time=None):
-    if ctx.author.guild_permissions.manage_messages:
-        muted_role = discord.utils.get(ctx.guild.roles, name="Muted")
-        if muted_role:
-            await user.add_roles(muted_role, reason=reason)
-            if time:
-                await asyncio.sleep(int(time) * 60)
-                await user.remove_roles(muted_role, reason="Mute time expired")
-            await ctx.send(f'Muted user {user.display_name} for {time} minutes for reason: {reason}')
-        else:
-            await ctx.send('The Muted role is not set. Please use the /setmutedrole command to set it.')
+    muted_role = discord.utils.get(ctx.guild.roles, name="Muted")
+    if muted_role:
+        await user.add_roles(muted_role, reason=reason)
+        if time:
+            await asyncio.sleep(int(time) * 60)
+            await user.remove_roles(muted_role, reason="Mute time expired")
+        await ctx.send(f'Muted user {user.display_name} for {time} minutes for reason: {reason}')
     else:
-        await ctx.send('You do not have permission to mute users.')
+        await ctx.send('The Muted role is not set. Please use the /setmutedrole command to set it.')
+
+@mute.error
+async def mute_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f'This command is on cooldown. Try again in {int(error.retry_after)} seconds.')
 
 bot.run(bot_token)
