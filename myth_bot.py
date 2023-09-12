@@ -118,7 +118,7 @@ async def set_muted_role(ctx, role):
     ]
 )
 async def mute(ctx, user, reason=None, time=None):
-    if ctx.author.guild_permissions.manage_roles:
+    if ctx.author.guild_permissions.manage_messages:
         muted_role = discord.utils.get(ctx.guild.roles, name="Muted")
         if muted_role:
             await user.add_roles(muted_role, reason=reason)
