@@ -6,7 +6,6 @@ Myth Bot is a simple Discord moderation tool bot designed to assist with common 
 
 - **Ban Command**: Ban a user from the server.
 - **Kick Command**: Kick a user from the server.
-- **Mute Command**: Mute a user with an optional time limit.
 - **Prune Command**: Bulk delete a specific number of messages from a channel.
 - **Commands Command**: Alternative !help command, with embed.
 - **Userinfo Command**: Get detailed information about a user.
