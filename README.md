@@ -8,7 +8,8 @@ Myth Bot is a simple Discord moderation tool bot designed to assist with common 
 - **Kick Command**: Kick a user from the server.
 - **Mute Command**: Mute a user with an optional time limit.
 - **Prune Command**: Bulk delete a specific number of messages from a channel.
-- **Set Muted Role Command**: Set a designated "Muted" role for muting users.
+- **Commands Command**: Alternative !help command, with embed.
+- **Userinfo Command**: Get detailed information about a user.
 
 ## Usage
 
@@ -21,6 +22,12 @@ Once the bot is in your server, you can use the following slash commands:
 - `/mute @user [reason] [time]`: Mute a user with an optional reason and time limit (in minutes).
 - `/prune [number] [reason]`: Bulk delete a specific number of messages from the current channel with an optional reason.
 - `/setmutedrole @role`: Set the Muted role for the server.
+
+## Note
+
+- This is not meant for commercial use, only for me to learn how bots work.
+- You can do anything to the source, I won't care if you don't credit me.
+- I will finish this readme.md someday, so it's not done.
 
 ## License 
 
