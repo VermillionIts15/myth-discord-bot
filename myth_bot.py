@@ -6,6 +6,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = commands.Bot(command_prefix='!', intents=intents)
 
+tree = commands.app_command(bot)
+
 TOKEN = "TOKEN-HERE-BABY" # Don't share or print your token with me or anyone else. Put your BOT token.
 
 @client.event
